@@ -1,0 +1,244 @@
+/* Container */
+.stats-container {
+  margin-left: 30px;
+  padding: 10px 20px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.stats-page {
+  margin: 0 auto;
+}
+
+/* Header */
+.stats-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.stats-header {
+  font-size: 35px;
+  font-weight: 500;
+  color: #111827;
+  font-family: 'Times New Roman', Times, serif;
+  margin-bottom: 8px;
+}
+
+/* Dropdown */
+.dropdown-container {
+  position: relative;
+  width: 150px;
+}
+
+.time-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #20BFA5;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.time-filter:hover {
+  background-color: #1aa391;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.dropdown-list li {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dropdown-list li:hover {
+  background-color: #DCFCE7;
+}
+
+.active-category {
+  font-weight: 600;
+  color: #20BFA5;
+}
+
+/* Stats cards */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 14px;
+  height: 150px;
+  max-width: 350px;
+  background-color: #e6fdf8;
+  border: 1.5px solid #20bfa5;
+  box-shadow: 0 4px 10px rgba(32, 191, 165, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+  font-size: 28px;
+  margin-right: 10px;
+}
+
+.stat-info h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #065f46;
+}
+
+.stat-info p {
+  font-size: 13px;
+  color: #047857;
+  margin: 0;
+}
+
+.stat-trend {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.stat-trend.up { color: #16a34a; }
+.stat-trend.down { color: #dc2626; }
+
+/* Table + Pie chart container */
+.table-pie-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+/* Profit margin table */
+.profit-margin-section {
+  flex: 1;
+  max-width: 40%;
+  background-color: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(32, 191, 165, 0.25);
+  min-height: 403px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.profit-margin-header {
+  font-size: 25px;
+  font-weight: 600;
+  margin: 10px 0 10px;
+  color: #000;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.profit-margin-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #2dbba4;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  height: 355px;
+}
+
+.profit-margin-table th,
+.profit-margin-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.profit-margin-table th {
+  background-color: #e6fdf8;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.profit-margin-table tr {
+  border: 1px solid #2dbba4;
+}
+
+.profit-margin-table tbody tr:hover {
+  background-color: #e6fdf8;
+}
+
+/* Pie chart */
+.pie-chart-section {
+  flex: 1;
+  max-width: 60%;
+  background-color: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(32, 191, 165, 0.25);
+}
+
+.pie-chart-header {
+  font-size: 25px;
+  font-weight: 600;
+  margin: 10px 0 10px;
+  color: #000;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.pie-chart-container {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Line + Bar chart sections */
+.line-chart-section,
+.bar-chart-section {
+  margin-bottom: 30px;
+  width: 100%;
+  min-height: 300px; /* ensures some height for charts */
+}
