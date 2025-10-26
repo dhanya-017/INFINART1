@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/products";
 
 const getAuthHeader = (token) => ({
   headers: {
@@ -9,7 +9,7 @@ const getAuthHeader = (token) => ({
 });
 
 export const fetchProductReviews = async (productId) => {
-  const res = await axios.get(`${API_URL}/products/${productId}/reviews`);
+  const res = await axios.get(`${API_URL}/${productId}/reviews`);
   return res.data;
 };
 

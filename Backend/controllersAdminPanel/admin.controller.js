@@ -1,5 +1,6 @@
 const Product = require("../models/product.model");
 const Admin = require("../models/admin.model");
+const Seller = require("../models/seller.model");
 const jwt = require("jsonwebtoken");
 
 // Generate JWT
@@ -74,9 +75,57 @@ const rejectProduct = async (req, res) => {
   }
 };
 
+// Get all sellers
+const getAllSellers = async (req, res) => {
+  try {
+    const sellers = await Seller.find({}).select("-password");
+    res.status(200).json(sellers);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching sellers", error });
+  }
+};
+
+// Get all products for a specific seller
+const getSellerProducts = async (req, res) => {
+  const { sellerId } = req.params;
+  try {
+    const products = await Product.find({ sellerId }).populate({
+      path: "sellerId",
+      select: "sellerName storeName email phone",
+    });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching seller products", error });
+  }
+};
+
+// Delete a product
+const deleteProduct = async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const product = await Product.findByIdAndDelete(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Product removed" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting product", error });
+  }
+};
+
+const verifyToken = (req, res) => {
+  res.status(200).json({ message: "Token is valid" });
+};
+
 module.exports = {
   loginAdmin,
   getPendingProducts,
   approveProduct,
   rejectProduct,
+  getAllSellers,
+  getSellerProducts,
+  deleteProduct,
+  verifyToken,
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DashboardPage.css';
+import { Link } from 'react-router-dom';
 
 const DashboardPage = () => {
   const [products, setProducts] = useState([]);
@@ -10,7 +11,7 @@ const DashboardPage = () => {
   const fetchPendingProducts = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5001/api/admin/products/pending', {
+      const response = await axios.get('/api/admin/products/pending', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(response.data);
@@ -27,7 +28,7 @@ const DashboardPage = () => {
   const handleApprove = async (productId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put(`http://localhost:5001/api/admin/products/${productId}/approve`, {},
+      await axios.put(`/api/admin/products/${productId}/approve`, {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setProducts(products.filter(p => p._id !== productId));
@@ -36,12 +37,26 @@ const DashboardPage = () => {
     }
   };
 
+  const handleDelete = async (productId) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        await axios.delete(`/api/admin/products/${productId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setProducts(products.filter(p => p._id !== productId));
+      } catch (err) {
+        alert('Failed to delete product.');
+      }
+    }
+  };
+
   const handleReject = async (productId) => {
     const reason = prompt('Please provide a reason for rejection:');
     if (reason) {
       try {
         const token = localStorage.getItem('adminToken');
-        await axios.put(`http://localhost:5001/api/admin/products/${productId}/reject`, 
+        await axios.put(`/api/admin/products/${productId}/reject`, 
           { adminNotes: reason },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -63,6 +78,7 @@ const DashboardPage = () => {
             <h1>Admin Dashboard</h1>
             <p>Review pending products from sellers.</p>
           </div>
+          <Link to="/sellers" className="dashboard-add-btn" style={{ marginRight: '10px' }}>View Sellers</Link>
           <button onClick={() => { localStorage.removeItem('adminToken'); window.location.reload(); }} className="dashboard-add-btn">Logout</button>
         </div>
 
@@ -87,6 +103,7 @@ const DashboardPage = () => {
                   <div className="product-actions">
                     <button onClick={() => handleApprove(product._id)} className="approve-button">Approve</button>
                     <button onClick={() => handleReject(product._id)} className="reject-button">Reject</button>
+                    <button onClick={() => handleDelete(product._id)} className="delete-button">Delete</button>
                   </div>
                 </div>
               ))}

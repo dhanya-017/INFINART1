@@ -56,7 +56,7 @@ const Navbar = () => {
 
       <ul className="navbar-links">
         <li><Link to="/home">Dashboard</Link></li>
-        <li><Link to="/products">Products</Link></li>
+                <li><Link to="/my-products">Products</Link></li>
         <li><Link to="/orders">Orders</Link></li>
         <li><Link to="/inventory">Inventory</Link></li>
         <li><Link to="/contact">Contact</Link></li>

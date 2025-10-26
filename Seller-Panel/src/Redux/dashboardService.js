@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5001/api/dashboard/";
-const PRODUCTINFO_URL = "http://localhost:5001/api/productinfo/";
+const API_URL = "http://localhost:5000/api/dashboard/";
+const PRODUCTINFO_URL = "http://localhost:5000/api/productinfo/";
 
 // Fetch seller dashboard stats
 const getSellerStats = async (sellerId, token) => {

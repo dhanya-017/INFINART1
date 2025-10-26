@@ -261,7 +261,7 @@ const ReviewCard = ({ review, allReviews = [] }) => {
           {safeReview.images && safeReview.images.length > 0 && (
             <div className="ReviewCard-review-images">
               {safeReview.images.map((image, index) => {
-                const base = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+                const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
                 let src = image || '';
                 if (src && !(src.startsWith('http://') || src.startsWith('https://'))) {
                   src = src.startsWith('/') ? `${base}${src}` : `${base}/${src}`;
@@ -291,7 +291,7 @@ const ReviewCard = ({ review, allReviews = [] }) => {
             
             {/* Current Image */}
             {(() => {
-              const base = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+              const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
               const currentReview = allReviews[selectedReviewIndex] || review;
               const images = Array.isArray(currentReview?.images) ? currentReview.images : [];
               let src = images[selectedImageIndex] || '';

@@ -12,7 +12,7 @@ const MyProducts = () => {
     const fetchProducts = async () => {
       try {
         const token = localStorage.getItem('sellerToken');
-        const response = await axios.get('http://localhost:5001/api/seller/products', {
+        const response = await axios.get(`${API_BASE_URL}/seller/products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(response.data);

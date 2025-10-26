@@ -8,7 +8,7 @@ const BlogDetails = () => {
   const [blog, setBlog] = useState(null);
 
  useEffect(() => {
-  axios.get(`http://localhost:5001/users/blogs/${id}`)
+  axios.get(`http://localhost:5000/users/blogs/${id}`)
     .then(res => {
       console.log("Fetched blog:", res.data);
       setBlog(res.data.blog);
@@ -23,7 +23,7 @@ const BlogDetails = () => {
   return (
     <div className="blog-container">
       <img 
-        src={`http://localhost:5001${blog.image}`} 
+        src={`http://localhost:5000${blog.image}`} 
         alt="blog" 
         className="blog-image" 
       />

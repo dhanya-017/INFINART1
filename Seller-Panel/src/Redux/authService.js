@@ -3,8 +3,8 @@ import axios from "axios";
 
 // PLACE BACKEND URL HERE
 const API_URL = {
-  REGISTER: "http://localhost:5001/api/seller/register", 
-  LOGIN: "http://localhost:5001/api/seller/login",       
+  REGISTER: "http://localhost:5000/api/seller/register", 
+  LOGIN: "http://localhost:5000/api/seller/login",       
 };
 
 // REGISTER SELLER

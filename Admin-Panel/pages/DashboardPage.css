@@ -257,3 +257,11 @@ h1 {
   background-color: #dc3545;
 }
 
+.delete-button {
+  background-color: #6c757d;
+}
+
+.delete-button:hover {
+  background-color: #5a6268;
+}
+

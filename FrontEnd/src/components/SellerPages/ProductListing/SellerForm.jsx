@@ -79,7 +79,8 @@ const productsWithoutImages = products.map(
       formData.append("images", prod.image);
     });
 
-    fetch("http://localhost:5001/seller/uploadSellerProducts", {
+    const API_URL = 'http://localhost:5000/api/seller';
+    fetch(`${API_URL}/uploadSellerProducts`, {
       method: "POST",
       body: formData,
     })

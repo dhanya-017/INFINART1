@@ -1,7 +1,7 @@
 // src/services/sellerService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:5001/api/seller";
+const API_URL = "http://localhost:5000/api/seller";
 
 // Function to get the seller profile
 const getSellerProfile = async (token) => {

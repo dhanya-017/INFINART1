@@ -74,14 +74,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
               Product Listing
             </NavLink>
             <NavLink
-              to="/my-products"
-              className={({ isActive }) =>
-                `dropdown-item ${isActive ? "active-dropdown" : ""}`
-              }
-            >
-              My Products
-            </NavLink>
-            <NavLink
               to="/addProduct"
               className={({ isActive }) =>
                 `dropdown-item ${isActive ? "active-dropdown" : ""}`

@@ -17,7 +17,7 @@ router.get("/my", protectSeller, async (req, res) => {
 
         const products = await Product.find({ 
       sellerId, 
-      approvalStatus: { $ne: 'rejected' } 
+      approvalStatus: 'approved'
     }).sort({ createdAt: -1 });
 
     res.status(200).json({
