@@ -1,6 +1,8 @@
 const Product = require("../models/product.model");
 const Admin = require("../models/admin.model");
 const Seller = require("../models/seller.model");
+const Order = require("../models/order.model");
+const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
 // Generate JWT
@@ -31,14 +33,38 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-// Get all products with "pending" status
+// Get products by status
 const getPendingProducts = async (req, res) => {
   try {
-    const pendingProducts = await Product.find({ approvalStatus: "pending" }).populate({
+    const { status } = req.query;
+    let query = {};
+
+    if (status === 'pending') {
+      query = {
+        $or: [
+          { approvalStatus: 'pending' },
+          { approvalStatus: { $exists: false } },
+          { approvalStatus: null },
+        ],
+      };
+    } else if (status) {
+      query = { approvalStatus: status };
+    } else {
+      // Default to pending if no status is provided
+      query = {
+        $or: [
+          { approvalStatus: 'pending' },
+          { approvalStatus: { $exists: false } },
+          { approvalStatus: null },
+        ],
+      };
+    }
+
+    const products = await Product.find(query).populate({
       path: "sellerId",
       select: "sellerName storeName email phone",
     });
-    res.status(200).json(pendingProducts);
+    res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: "Error fetching pending products", error });
   }
@@ -119,6 +145,64 @@ const verifyToken = (req, res) => {
   res.status(200).json({ message: "Token is valid" });
 };
 
+// Get sales analytics data
+const getSalesAnalytics = async (req, res) => {
+  try {
+    const salesData = await Order.aggregate([
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          totalSales: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const formattedSalesData = salesData.map(item => ({
+      name: monthNames[item._id - 1],
+      sales: item.totalSales,
+    }));
+
+    res.status(200).json(formattedSalesData);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching sales analytics", error });
+  }
+};
+
+// Get user analytics data
+const getUserAnalytics = async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const userData = await User.aggregate([
+      {
+        $match: {
+          lastLogin: { $gte: sevenDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: { $dayOfWeek: "$lastLogin" },
+          userCount: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const formattedUserData = userData.map(item => ({
+      name: dayNames[item._id - 1],
+      users: item.userCount,
+    }));
+
+    res.status(200).json(formattedUserData);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user analytics", error });
+  }
+};
+
 module.exports = {
   loginAdmin,
   getPendingProducts,
@@ -128,4 +212,6 @@ module.exports = {
   getSellerProducts,
   deleteProduct,
   verifyToken,
+  getSalesAnalytics,
+  getUserAnalytics,
 };

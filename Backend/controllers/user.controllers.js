@@ -55,6 +55,9 @@ module.exports.loginUser = async (req, res, next) => {
     return res.status(400).json({ message: 'Invalid credentials' });
   }
 
+  user.lastLogin = new Date();
+  await user.save();
+
   const token = await user.generateAuthToken(); // Genrating token -- session problem in website  
   res.status(200).json({ token, user });
 };

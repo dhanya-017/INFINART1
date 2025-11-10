@@ -23,8 +23,7 @@ export const addProduct = createAsyncThunk(
 
       const token = getState().auth.token;
 
-      const API_URL = 'http://localhost:5000/api/products';
-      const res = await axios.post(API_URL, formData, {
+      const res = await axios.post("http://localhost:5001/api/products", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
   },
 
+  lastLogin: {
+    type: Date,
+    default: null,
+  },
+
   // Multiple saved addresses
   savedAddresses: [
     {

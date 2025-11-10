@@ -14,7 +14,7 @@ const protectSeller = async (req, res, next) => {
         return res.status(401).json({ message: 'Not authorized, seller not found' });
       }
 
-      req.user = seller; // Attach the full seller object
+      req.user = seller; 
       next();
     } catch (error) {
       console.error("SELLER AUTH ERROR:", error);

@@ -1,29 +1,95 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DashboardPage.css';
-import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import ConfirmationModal from '../src/components/ConfirmationModal';
 
 const DashboardPage = () => {
-  const [products, setProducts] = useState([]);
+  const [stats, setStats] = useState({
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+    totalSellers: 0
+  });
+  const [recentProducts, setRecentProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalAction, setModalAction] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const fetchPendingProducts = async () => {
+  const fetchDashboardData = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('/api/admin/products/pending', {
-        headers: { Authorization: `Bearer ${token}` },
+      
+      // Fetch all products for statistics
+      const [pendingRes, approvedRes, rejectedRes, sellersRes] = await Promise.all([
+        axios.get('/api/admin/products?status=pending', {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get('/api/admin/products?status=approved', {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get('/api/admin/products?status=rejected', {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch('/api/admin/sellers', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).then(res => res.json())
+      ]);
+
+      setStats({
+        pending: pendingRes.data.length,
+        approved: approvedRes.data.length,
+        rejected: rejectedRes.data.length,
+        totalSellers: sellersRes.length
       });
-      setProducts(response.data);
+
+      // Get recent pending products (last 6)
+      const recentPending = pendingRes.data.slice(0, 6);
+      setRecentProducts(recentPending);
     } catch (err) {
-      setError('Failed to fetch products.');
+      setError('Failed to fetch dashboard data.');
+      toast.error('Failed to fetch dashboard data.');
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchPendingProducts();
+    fetchDashboardData();
   }, []);
+
+  const handleApproveClick = (product) => {
+    setSelectedProduct(product);
+    setModalAction('approve');
+    setModalIsOpen(true);
+  };
+
+  const handleRejectClick = (product) => {
+    setSelectedProduct(product);
+    setModalAction('reject');
+    setModalIsOpen(true);
+  };
+
+  const handleDeleteClick = (product) => {
+    setSelectedProduct(product);
+    setModalAction('delete');
+    setModalIsOpen(true);
+  };
+
+  const handleConfirmAction = () => {
+    if (modalAction === 'approve') {
+      handleApprove(selectedProduct._id);
+    } else if (modalAction === 'reject') {
+      handleReject(selectedProduct._id);
+    } else if (modalAction === 'delete') {
+      handleDelete(selectedProduct._id);
+    }
+    setModalIsOpen(false);
+    setSelectedProduct(null);
+    setModalAction(null);
+  };
 
   const handleApprove = async (productId) => {
     try {
@@ -31,23 +97,23 @@ const DashboardPage = () => {
       await axios.put(`/api/admin/products/${productId}/approve`, {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setProducts(products.filter(p => p._id !== productId));
+      toast.success('Product approved successfully!');
+      fetchDashboardData(); // Refresh dashboard
     } catch (err) {
-      alert('Failed to approve product.');
+      toast.error('Failed to approve product.');
     }
   };
 
   const handleDelete = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        const token = localStorage.getItem('adminToken');
-        await axios.delete(`/api/admin/products/${productId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setProducts(products.filter(p => p._id !== productId));
-      } catch (err) {
-        alert('Failed to delete product.');
-      }
+    try {
+      const token = localStorage.getItem('adminToken');
+      await axios.delete(`/api/admin/products/${productId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Product deleted successfully!');
+      fetchDashboardData(); // Refresh dashboard
+    } catch (err) {
+      toast.error('Failed to delete product.');
     }
   };
 
@@ -56,13 +122,14 @@ const DashboardPage = () => {
     if (reason) {
       try {
         const token = localStorage.getItem('adminToken');
-        await axios.put(`/api/admin/products/${productId}/reject`, 
+        await axios.put(`/api/admin/products/${productId}/reject`,
           { adminNotes: reason },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setProducts(products.filter(p => p._id !== productId));
+        toast.success('Product rejected successfully!');
+        fetchDashboardData(); // Refresh dashboard
       } catch (err) {
-        alert('Failed to reject product.');
+        toast.error('Failed to reject product.');
       }
     }
   };
@@ -71,47 +138,109 @@ const DashboardPage = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="dashboard-background">
-      <div className="dashboard-overview-content">
-        <div className="dashboard-welcome-box">
-          <div className="dashboard-welcome-text">
-            <h1>Admin Dashboard</h1>
-            <p>Review pending products from sellers.</p>
-          </div>
-          <Link to="/sellers" className="dashboard-add-btn" style={{ marginRight: '10px' }}>View Sellers</Link>
-          <button onClick={() => { localStorage.removeItem('adminToken'); window.location.reload(); }} className="dashboard-add-btn">Logout</button>
-        </div>
-
-        <div className="dashboard-table-section">
-          <h2>Pending Products for Review</h2>
-          {products.length === 0 ? (
-            <p>No products are currently pending review.</p>
-          ) : (
-            <div className="product-list">
-              {products.map(product => (
-                <div key={product._id} className="product-card">
-                  <img src={product.images[0]} alt={product.name} className="product-image" />
-                  <div className="product-details">
-                    <h3>{product.name}</h3>
-                    <p><strong>Seller:</strong> {product.sellerId.sellerName}</p>
-                    <p><strong>Store:</strong> {product.sellerId.storeName}</p>
-                    <p><strong>Email:</strong> {product.sellerId.email}</p>
-                    <p><strong>Phone:</strong> {product.sellerId.phone}</p>
-                    <p><strong>Price:</strong> ₹{product.price}</p>
-                    <p>{product.description}</p>
-                  </div>
-                  <div className="product-actions">
-                    <button onClick={() => handleApprove(product._id)} className="approve-button">Approve</button>
-                    <button onClick={() => handleReject(product._id)} className="reject-button">Reject</button>
-                    <button onClick={() => handleDelete(product._id)} className="delete-button">Delete</button>
-                  </div>
-                </div>
-              ))}
+    <>
+      <ConfirmationModal
+        isOpen={modalIsOpen}
+        onClose={() => setModalIsOpen(false)}
+        onConfirm={handleConfirmAction}
+        title={`Confirm ${modalAction}`}
+      >
+        <p>Are you sure you want to {modalAction} this product?</p>
+      </ConfirmationModal>
+      <div className="dashboard-background">
+        <div className="dashboard-overview-content">
+          <div className="dashboard-welcome-box">
+            <div className="dashboard-welcome-text">
+              <h1>Dashboard</h1>
+              <p>Welcome to the admin dashboard. Quick overview of your platform statistics.</p>
             </div>
-          )}
+          </div>
+
+          {/* Statistics Cards */}
+          <div className="stats-grid">
+            <div className="stat-card stat-pending">
+              <div className="stat-icon">⏳</div>
+              <div className="stat-content">
+                <h3>Pending Review</h3>
+                <p className="stat-number">{stats.pending}</p>
+                <span className="stat-label">Products awaiting approval</span>
+              </div>
+            </div>
+
+            <div className="stat-card stat-approved">
+              <div className="stat-icon">✅</div>
+              <div className="stat-content">
+                <h3>Approved</h3>
+                <p className="stat-number">{stats.approved}</p>
+                <span className="stat-label">Live products</span>
+              </div>
+            </div>
+
+            <div className="stat-card stat-rejected">
+              <div className="stat-icon">❌</div>
+              <div className="stat-content">
+                <h3>Rejected</h3>
+                <p className="stat-number">{stats.rejected}</p>
+                <span className="stat-label">Products rejected</span>
+              </div>
+            </div>
+
+            <div className="stat-card stat-sellers">
+              <div className="stat-icon">👥</div>
+              <div className="stat-content">
+                <h3>Total Sellers</h3>
+                <p className="stat-number">{stats.totalSellers}</p>
+                <span className="stat-label">Registered sellers</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Products Section */}
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h2>Recent Pending Products</h2>
+              <a href="/products" className="view-all-link">View All Products →</a>
+            </div>
+
+            {recentProducts.length === 0 ? (
+              <div className="no-recent-products">
+                <p>🎉 No pending products! All caught up.</p>
+              </div>
+            ) : (
+              <div className="recent-products-grid">
+                {recentProducts.map(product => (
+                  <div key={product._id} className="dashboard-product-card">
+                    <img src={product.images[0]} alt={product.name} className="dashboard-product-image" />
+                    <div className="dashboard-product-details">
+                      <h3>{product.name}</h3>
+                      <p className="product-price-dashboard">₹{product.price}</p>
+                      <p className="product-info-line">
+                        <strong>Seller:</strong> {product.sellerId ? product.sellerId.sellerName : 'N/A'}
+                      </p>
+                      <p className="product-info-line">
+                        <strong>Store:</strong> {product.sellerId ? product.sellerId.storeName : 'N/A'}
+                      </p>
+                      <p className="product-info-line">
+                        <strong>Email:</strong> {product.sellerId ? product.sellerId.email : 'N/A'}
+                      </p>
+                      <p className="product-info-line">
+                        <strong>Phone:</strong> {product.sellerId ? product.sellerId.phone : 'N/A'}
+                      </p>
+                      <p className="product-description-dashboard">{product.description}</p>
+                    </div>
+                    <div className="dashboard-product-actions">
+                      <button onClick={() => handleApproveClick(product)} className="btn-approve">Approve</button>
+                      <button onClick={() => handleRejectClick(product)} className="btn-reject">Reject</button>
+                      <button onClick={() => handleDeleteClick(product)} className="btn-delete">Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
